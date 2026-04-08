@@ -89,7 +89,7 @@ export default function CultesAdminClient({ cultes: initial }: { cultes: CulteCo
   const modifEtape = (i: number, key: "titre" | "description", val: string) =>
     setForm(f => ({ ...f, etapes: f.etapes.map((e, idx) => idx === i ? { ...e, [key]: val } : e) }))
   const suppEtape = (i: number) => setForm(f => ({ ...f, etapes: f.etapes.filter((_, idx) => idx !== i) }))
-  const ajouterImage = (url: string) => setForm(f => ({ ...f, images: [...f.images, url] }))
+  const ajouterImages = (urls: string[]) => setForm(f => ({ ...f, images: [...f.images, ...urls] }))
   const suppImage = (i: number) => setForm(f => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }))
 
   return (
@@ -200,7 +200,13 @@ export default function CultesAdminClient({ cultes: initial }: { cultes: CulteCo
                   </button>
                 </div>
               ))}
-              <UploadButton value="" onChange={ajouterImage} label="" />
+              <UploadButton
+                value=""
+                onChange={() => {}}
+                onChangeMultiple={ajouterImages}
+                label=""
+                multiple
+              />
             </div>
           </div>
 

@@ -29,6 +29,7 @@ export default function MediasAdminClient({ dossiers: initial }: { dossiers: Dos
   const [modalFichier, setModalFichier] = useState(false)
   const [dossierFichierId, setDossierFichierId] = useState<string | null>(null)
   const [urlFichier, setUrlFichier] = useState("")
+  const [urlsFichiers, setUrlsFichiers] = useState<string[]>([])
   const [typeFichier, setTypeFichier] = useState<"PHOTO" | "VIDEO">("PHOTO")
 
   const toggleOuvert = (id: string) => {
@@ -57,13 +58,29 @@ export default function MediasAdminClient({ dossiers: initial }: { dossiers: Dos
     window.location.reload()
   }
 
-  const soumettresFichier = async () => {
-    if (!urlFichier || !dossierFichierId) return
+  const ouvrirModalFichier = (dossierId: string, type: "PHOTO" | "VIDEO") => {
+    setDossierFichierId(dossierId)
+    setTypeFichier(type)
+    setUrlFichier("")
+    setUrlsFichiers([])
+    setModalFichier(true)
+  }
+
+  // Pour les photos : on soumet plusieurs URLs d'un coup
+  const soumettresFichiers = async () => {
+    if (!dossierFichierId) return
+
+    const urls = typeFichier === "PHOTO" ? urlsFichiers : urlFichier ? [urlFichier] : []
+    if (urls.length === 0) return
+
     setLoading(true)
-    await ajouterFichier({ url: urlFichier, type: typeFichier, dossierId: dossierFichierId })
+    for (const url of urls) {
+      await ajouterFichier({ url, type: typeFichier, dossierId: dossierFichierId })
+    }
     setLoading(false)
     setModalFichier(false)
     setUrlFichier("")
+    setUrlsFichiers([])
     window.location.reload()
   }
 
@@ -111,7 +128,7 @@ export default function MediasAdminClient({ dossiers: initial }: { dossiers: Dos
                 style={{ padding: "0.4rem 0.75rem", background: "rgba(21,101,192,0.06)", color: "#1565C0", border: "none", borderRadius: "0.625rem", fontSize: "0.72rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                 <Plus size={12} /> Sous-dossier
               </button>
-              <button onClick={() => { setDossierFichierId(d.id); setTypeFichier("PHOTO"); setUrlFichier(""); setModalFichier(true) }}
+              <button onClick={() => ouvrirModalFichier(d.id, "PHOTO")}
                 style={{ padding: "0.4rem 0.75rem", background: "rgba(21,101,192,0.06)", color: "#1565C0", border: "none", borderRadius: "0.625rem", fontSize: "0.72rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                 <Plus size={12} /> Fichier
               </button>
@@ -127,7 +144,7 @@ export default function MediasAdminClient({ dossiers: initial }: { dossiers: Dos
           )}
 
           {estCulte && (
-            <button onClick={() => { setDossierFichierId(d.id); setTypeFichier("PHOTO"); setUrlFichier(""); setModalFichier(true) }}
+            <button onClick={() => ouvrirModalFichier(d.id, "PHOTO")}
               style={{ padding: "0.4rem 0.75rem", background: "rgba(21,101,192,0.06)", color: "#1565C0", border: "none", borderRadius: "0.625rem", fontSize: "0.72rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
               <Plus size={12} /> Fichier
             </button>
@@ -210,7 +227,7 @@ export default function MediasAdminClient({ dossiers: initial }: { dossiers: Dos
             <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#374151", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>Type</label>
             <div style={{ display: "flex", gap: "0.75rem" }}>
               {(["PHOTO", "VIDEO"] as const).map(t => (
-                <button key={t} type="button" onClick={() => { setTypeFichier(t); setUrlFichier("") }}
+                <button key={t} type="button" onClick={() => { setTypeFichier(t); setUrlFichier(""); setUrlsFichiers([]) }}
                   style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 1.25rem", borderRadius: "9999px", border: "1.5px solid", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", fontFamily: "'Inter', sans-serif", background: typeFichier === t ? "#1565C0" : "white", color: typeFichier === t ? "white" : "#6B7280", borderColor: typeFichier === t ? "#1565C0" : "#E5E7EB" }}>
                   {t === "PHOTO" ? <ImageIcon size={14} /> : <Video size={14} />}
                   {t === "PHOTO" ? "Photo" : "Vidéo"}
@@ -220,14 +237,56 @@ export default function MediasAdminClient({ dossiers: initial }: { dossiers: Dos
           </div>
 
           {typeFichier === "PHOTO" ? (
-            <UploadButton value={urlFichier} onChange={setUrlFichier} label="Image" />
+            <div>
+              {/* Aperçu des images sélectionnées */}
+              {urlsFichiers.length > 0 && (
+                <div style={{ marginBottom: "0.75rem" }}>
+                  <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", marginBottom: "0.5rem", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>
+                    {urlsFichiers.length} photo{urlsFichiers.length > 1 ? "s" : ""} sélectionnée{urlsFichiers.length > 1 ? "s" : ""}
+                  </p>
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    {urlsFichiers.map((url, i) => (
+                      <div key={i} style={{ position: "relative", width: "72px", height: "54px", borderRadius: "0.625rem", overflow: "hidden", border: "2px solid rgba(21,101,192,0.15)" }}>
+                        <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <button
+                          type="button"
+                          onClick={() => setUrlsFichiers(u => u.filter((_, idx) => idx !== i))}
+                          style={{ position: "absolute", top: "2px", right: "2px", background: "rgba(0,0,0,0.5)", border: "none", borderRadius: "9999px", width: "16px", height: "16px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                        >
+                          <X size={9} color="white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <UploadButton
+                value=""
+                onChange={() => {}}
+                onChangeMultiple={urls => setUrlsFichiers(u => [...u, ...urls])}
+                label="Images"
+                multiple
+              />
+            </div>
           ) : (
             <UploadFichier value={urlFichier} onChange={setUrlFichier} label="Vidéo" type="video" />
           )}
 
-          <button onClick={soumettresFichier} disabled={loading || !urlFichier}
-            style={{ padding: "0.875rem", background: "linear-gradient(135deg, #1565C0, #1E88E5)", color: "white", border: "none", borderRadius: "0.875rem", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer", fontFamily: "'Inter', sans-serif", opacity: !urlFichier ? 0.5 : 1 }}>
-            {loading ? "Enregistrement..." : "Ajouter"}
+          <button
+            onClick={soumettresFichiers}
+            disabled={loading || (typeFichier === "PHOTO" ? urlsFichiers.length === 0 : !urlFichier)}
+            style={{
+              padding: "0.875rem", background: "linear-gradient(135deg, #1565C0, #1E88E5)", color: "white",
+              border: "none", borderRadius: "0.875rem", fontWeight: 700, fontSize: "0.95rem",
+              cursor: "pointer", fontFamily: "'Inter', sans-serif",
+              opacity: (typeFichier === "PHOTO" ? urlsFichiers.length === 0 : !urlFichier) ? 0.5 : 1,
+            }}>
+            {loading
+              ? "Enregistrement..."
+              : typeFichier === "PHOTO" && urlsFichiers.length > 1
+                ? `Ajouter ${urlsFichiers.length} photos`
+                : "Ajouter"
+            }
           </button>
         </div>
       </Modal>

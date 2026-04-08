@@ -23,7 +23,6 @@ async function compresserImage(file: File): Promise<File> {
       canvas.height = height
       const ctx = canvas.getContext("2d")!
 
-      // Pour PNG transparent : ne pas remplir le fond
       if (!isPng) {
         ctx.fillStyle = "#ffffff"
         ctx.fillRect(0, 0, width, height)
@@ -32,72 +31,77 @@ async function compresserImage(file: File): Promise<File> {
       ctx.drawImage(img, 0, 0, width, height)
 
       if (isPng) {
-        // Garder PNG avec transparence
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) { resolve(file); return }
-            resolve(new File([blob], file.name, { type: "image/png" }))
-          },
-          "image/png"
-        )
+        canvas.toBlob((blob) => {
+          if (!blob) { resolve(file); return }
+          resolve(new File([blob], file.name, { type: "image/png" }))
+        }, "image/png")
       } else {
-        // JPEG pour les autres formats
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) { resolve(file); return }
-            resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }))
-          },
-          "image/jpeg", 0.85
-        )
+        canvas.toBlob((blob) => {
+          if (!blob) { resolve(file); return }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }))
+        }, "image/jpeg", 0.85)
       }
     }
     img.src = url
   })
 }
 
-export default function UploadButton({ value, onChange, label = "Photo" }: {
-  value: string; onChange: (url: string) => void; label?: string
+export default function UploadButton({ value, onChange, onChangeMultiple, label = "Photo", multiple = false }: {
+  value: string
+  onChange: (url: string) => void
+  onChangeMultiple?: (urls: string[]) => void
+  label?: string
+  multiple?: boolean
 }) {
   const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
     setUploading(true)
+    setProgress({ done: 0, total: files.length })
 
     try {
-      const compressed = await compresserImage(file)
+      const urls: string[] = []
+      for (const file of files) {
+        const compressed = await compresserImage(file)
+        const formData = new FormData()
+        formData.append("file", compressed)
+        formData.append("fileType", "image")
+        const res = await fetch("/api/upload", { method: "POST", body: formData })
+        const data = await res.json()
+        if (!data.url) throw new Error("Pas d'URL retournée")
+        urls.push(data.url)
+        setProgress(p => p ? { ...p, done: p.done + 1 } : null)
+      }
 
-      const formData = new FormData()
-      formData.append("file", compressed)
-      formData.append("fileType", "image")
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      })
-
-      const data = await res.json()
-      if (data.url) onChange(data.url)
-      else throw new Error("Pas d'URL retournée")
+      if (multiple && onChangeMultiple) {
+        onChangeMultiple(urls)
+      } else {
+        onChange(urls[0])
+      }
     } catch (err) {
       console.error("Erreur upload:", err)
     } finally {
       setUploading(false)
+      setProgress(null)
       if (inputRef.current) inputRef.current.value = ""
     }
   }
 
   return (
     <div>
-      <label style={{
-        display: "block", fontSize: "0.75rem", fontWeight: 700,
-        color: "#374151", marginBottom: "0.5rem",
-        letterSpacing: "0.05em", textTransform: "uppercase" as const,
-      }}>
-        {label}
-      </label>
+      {label && (
+        <label style={{
+          display: "block", fontSize: "0.75rem", fontWeight: 700,
+          color: "#374151", marginBottom: "0.5rem",
+          letterSpacing: "0.05em", textTransform: "uppercase" as const,
+        }}>
+          {label}
+        </label>
+      )}
 
       {value ? (
         <div style={{
@@ -136,18 +140,23 @@ export default function UploadButton({ value, onChange, label = "Photo" }: {
                 <circle cx="12" cy="12" r="10" strokeOpacity="0.3" />
                 <path d="M12 2a10 10 0 0 1 10 10" />
               </svg>
-              <span style={{ fontSize: "0.72rem", color: "#9CA3AF" }}>Upload...</span>
+              <span style={{ fontSize: "0.66rem", color: "#9CA3AF", textAlign: "center" as const }}>
+                {progress ? `${progress.done}/${progress.total}` : "Upload..."}
+              </span>
             </>
           ) : (
             <>
               <Upload size={20} color="#1565C0" />
-              <span style={{ fontSize: "0.72rem", color: "#9CA3AF" }}>Choisir</span>
+              <span style={{ fontSize: "0.66rem", color: "#9CA3AF", textAlign: "center" as const }}>
+                {multiple ? "Choisir\nplusieurs" : "Choisir"}
+              </span>
             </>
           )}
           <input
             ref={inputRef}
             type="file"
             accept="image/*"
+            multiple={multiple}
             onChange={handleFile}
             disabled={uploading}
             style={{ display: "none" }}

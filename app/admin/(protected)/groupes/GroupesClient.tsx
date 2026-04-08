@@ -39,7 +39,6 @@ export default function GroupesAdminClient({ groupes: initial }: { groupes: Grou
 
   const soumettre = async () => {
     setLoading(true)
-    // Filtrer les objectifs vides avant d'envoyer
     const payload = { ...form, objectifs: form.objectifs.filter(o => o.trim() !== "") }
     if (modal === "creer") await creerGroupe(payload)
     else if (modal === "modifier" && actif) await modifierGroupe(actif.id, payload)
@@ -57,7 +56,7 @@ export default function GroupesAdminClient({ groupes: initial }: { groupes: Grou
   const ajouterObjectif = () => setForm(f => ({ ...f, objectifs: [...f.objectifs, ""] }))
   const modifObjectif = (i: number, val: string) => setForm(f => ({ ...f, objectifs: f.objectifs.map((o, idx) => idx === i ? val : o) }))
   const suppObjectif = (i: number) => setForm(f => ({ ...f, objectifs: f.objectifs.filter((_, idx) => idx !== i) }))
-  const ajouterImage = (url: string) => setForm(f => ({ ...f, images: [...f.images, url] }))
+  const ajouterImages = (urls: string[]) => setForm(f => ({ ...f, images: [...f.images, ...urls] }))
   const suppImage = (i: number) => setForm(f => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }))
 
   return (
@@ -132,7 +131,6 @@ export default function GroupesAdminClient({ groupes: initial }: { groupes: Grou
 
       <Modal open={!!modal} onClose={() => setModal(null)} title={modal === "creer" ? "Nouveau groupe" : "Modifier le groupe"}>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {/* Nom seul sur toute la largeur — pas de logo ni sigle pour les groupes */}
           <ChampTexte label="Nom" value={form.nom} onChange={v => setForm(f => ({ ...f, nom: v }))} placeholder="Chorale ASAPH" />
           <ChampTexte label="Description" value={form.description} onChange={v => setForm(f => ({ ...f, description: v }))} multiline />
 
@@ -180,7 +178,13 @@ export default function GroupesAdminClient({ groupes: initial }: { groupes: Grou
                   </button>
                 </div>
               ))}
-              <UploadButton value="" onChange={ajouterImage} label="" />
+              <UploadButton
+                value=""
+                onChange={() => {}}
+                onChangeMultiple={ajouterImages}
+                label=""
+                multiple
+              />
             </div>
           </div>
 

@@ -77,7 +77,7 @@ export default function StructuresAdminClient({ structures: initial }: { structu
   const suppObjectif = (i: number) => setFormStructure(f => ({ ...f, objectifs: f.objectifs.filter((_, idx) => idx !== i) }))
 
   // ── Images handlers ──
-  const ajouterImage = (url: string) => setFormStructure(f => ({ ...f, images: [...f.images, url] }))
+  const ajouterImages = (urls: string[]) => setFormStructure(f => ({ ...f, images: [...f.images, ...urls] }))
   const suppImage = (i: number) => setFormStructure(f => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }))
 
   // ── Membre handlers ──
@@ -271,7 +271,13 @@ export default function StructuresAdminClient({ structures: initial }: { structu
                   </button>
                 </div>
               ))}
-              <UploadButton value="" onChange={ajouterImage} label="" />
+              <UploadButton
+                value=""
+                onChange={() => {}}
+                onChangeMultiple={ajouterImages}
+                label=""
+                multiple
+              />
             </div>
           </div>
 
