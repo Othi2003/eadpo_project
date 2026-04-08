@@ -93,7 +93,10 @@ export default function HeroAdminClient({ slides: initialSlides }: { slides: Sli
         <Modal open={!!modalSlide} onClose={() => setModalSlide(null)} title={modalSlide === "creer" ? "Nouveau slide" : "Modifier slide"}>
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <ChampTexte label="Image" value={formSlide.image} onChange={(v) => setFormSlide({ ...formSlide, image: v })} />
-            <UploadButton onUpload={(url) => setFormSlide({ ...formSlide, image: url })} />
+            <UploadButton 
+              value={formSlide.image}
+              onChange={(url) => setFormSlide({ ...formSlide, image: url })}
+            />
             <ChampTexte label="Label" value={formSlide.label} onChange={(v) => setFormSlide({ ...formSlide, label: v })} />
             <ChampTexte label="Texte" value={formSlide.texte} onChange={(v) => setFormSlide({ ...formSlide, texte: v })} />
             <ChampTexte label="Référence" value={formSlide.reference} onChange={(v) => setFormSlide({ ...formSlide, reference: v })} />
