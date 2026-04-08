@@ -8,8 +8,8 @@ const prisma = new PrismaClient({ adapter })
 
 async function main() {
   // ── Admin ──
-  const email = "admin@peadpo.org"
-  const password = "CHANGE_MOI"
+  const email = "yawothi@gmail.com"
+  const password = "Othi@1975"
 
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) {
@@ -23,7 +23,7 @@ async function main() {
   }
 
   // ── Structures ──
-  const structuresData = [
+ /*const structuresData = [
     {
       slug: "mheb", sigle: "MHEB",
       nom: "Mouvement des Hommes de l'Église des Assemblées de Dieu du Burkina Faso",
@@ -173,7 +173,7 @@ async function main() {
       })
     }
   }
-  console.log("✅ Cultes fictifs créés")
+  console.log("✅ Cultes fictifs créés")*/
 }
 
 main()

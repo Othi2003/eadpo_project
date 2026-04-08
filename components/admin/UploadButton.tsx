@@ -4,7 +4,9 @@ import { useState, useRef } from "react"
 import { Upload, X } from "lucide-react"
 import Image from "next/image"
 
-async function compresserImage(file: File, maxMB = 8): Promise<File> {
+async function compresserImage(file: File): Promise<File> {
+  const isPng = file.type === "image/png"
+
   return new Promise((resolve) => {
     const img = document.createElement("img")
     const url = URL.createObjectURL(file)
@@ -12,28 +14,42 @@ async function compresserImage(file: File, maxMB = 8): Promise<File> {
       URL.revokeObjectURL(url)
       const canvas = document.createElement("canvas")
       let { width, height } = img
-
-      // Réduire la taille si trop grande
       const maxDim = 2000
       if (width > maxDim || height > maxDim) {
         if (width > height) { height = Math.round(height * maxDim / width); width = maxDim }
         else { width = Math.round(width * maxDim / height); height = maxDim }
       }
-
       canvas.width = width
       canvas.height = height
       const ctx = canvas.getContext("2d")!
+
+      // Pour PNG transparent : ne pas remplir le fond
+      if (!isPng) {
+        ctx.fillStyle = "#ffffff"
+        ctx.fillRect(0, 0, width, height)
+      }
+
       ctx.drawImage(img, 0, 0, width, height)
 
-      // Compresser en JPEG avec qualité 0.85
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) { resolve(file); return }
-          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }))
-        },
-        "image/jpeg",
-        0.85
-      )
+      if (isPng) {
+        // Garder PNG avec transparence
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) { resolve(file); return }
+            resolve(new File([blob], file.name, { type: "image/png" }))
+          },
+          "image/png"
+        )
+      } else {
+        // JPEG pour les autres formats
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) { resolve(file); return }
+            resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }))
+          },
+          "image/jpeg", 0.85
+        )
+      }
     }
     img.src = url
   })
