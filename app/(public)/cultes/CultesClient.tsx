@@ -222,7 +222,7 @@ export default function CultesClient({ cultes }: { cultes: Culte[] }) {
                 return (
                   <motion.div key={key} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
                     <MoisLabel texte={`${MOIS[month]} ${year}`} />
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.875rem" }}>
+                    <div className="cultes-grid">
                       {cultesDuMois.map((culte, i) => (
                         <CulteItem key={culte.id} culte={culte} i={i} />
                       ))}
@@ -234,6 +234,19 @@ export default function CultesClient({ cultes }: { cultes: Culte[] }) {
           )}
         </div>
       </section>
+
+      <style>{`
+        .cultes-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.875rem;
+        }
+        @media (max-width: 640px) {
+          .cultes-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </main>
   )
 }
