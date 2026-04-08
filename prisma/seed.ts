@@ -23,7 +23,7 @@ async function main() {
   }
 
   // ── Structures ──
- /*const structuresData = [
+ const structuresData = [
     {
       slug: "mheb", sigle: "MHEB",
       nom: "Mouvement des Hommes de l'Église des Assemblées de Dieu du Burkina Faso",
@@ -173,7 +173,7 @@ async function main() {
       })
     }
   }
-  console.log("✅ Cultes fictifs créés")*/
+  console.log("✅ Cultes fictifs créés")
 }
 
 main()
