@@ -68,34 +68,6 @@ export default async function AdminPage() {
           </div>
         ))}
       </div>
-
-      {/* Accès rapides */}
-      <div style={{ background: "white", borderRadius: "1.25rem", padding: "1.75rem", boxShadow: "0 2px 12px rgba(21,101,192,0.06)", border: "1px solid rgba(21,101,192,0.07)" }}>
-        <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#1e3a5f", marginBottom: "1.25rem" }}>
-          Accès rapides
-        </h2>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-          {[
-            { label: "Ajouter un pasteur", href: "/admin/pasteurs/nouveau" },
-            { label: "Ajouter un culte", href: "/admin/cultes/nouveau" },
-            { label: "Ajouter une information", href: "/admin/informations/nouveau" },
-            { label: "Ajouter un média", href: "/admin/medias/nouveau" },
-          ].map((item) => (
-            <a key={item.href} href={item.href} style={{
-              padding: "0.6rem 1.25rem",
-              background: "rgba(21,101,192,0.06)",
-              color: "#1565C0",
-              borderRadius: "9999px",
-              fontSize: "0.85rem", fontWeight: 600,
-              textDecoration: "none",
-              border: "1px solid rgba(21,101,192,0.12)",
-              transition: "background 0.15s",
-            }}>
-              + {item.label}
-            </a>
-          ))}
-        </div>
-      </div>
     </div>
   )
 }
