@@ -2,22 +2,23 @@
 
 import { motion, AnimatePresence } from "motion/react"
 import { useState, useEffect } from "react"
-import { X } from "lucide-react"
+import { X, ZoomIn } from "lucide-react"
 import type { Information } from "@prisma/client"
 
 const MAX_CHARS = 120
 
 export default function InformationsClient({ informations }: { informations: Information[] }) {
   const [selected, setSelected] = useState<Information | null>(null)
+  const [lightbox, setLightbox] = useState<string | null>(null)
 
   useEffect(() => {
-    if (selected) {
+    if (selected || lightbox) {
       document.body.style.overflow = "hidden"
     } else {
       document.body.style.overflow = ""
     }
     return () => { document.body.style.overflow = "" }
-  }, [selected])
+  }, [selected, lightbox])
 
   return (
     <>
@@ -49,7 +50,7 @@ export default function InformationsClient({ informations }: { informations: Inf
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: i * 0.08 }}
                   onClick={() => showVoirPlus ? setSelected(info) : undefined}
-                  whileHover={{ y: -6, rotate: 0, scale: 1.03 }}
+                  whileHover={{ y: -6, scale: 1.03 }}
                   style={{
                     background: "white",
                     borderRadius: "1.25rem",
@@ -163,16 +164,25 @@ export default function InformationsClient({ informations }: { informations: Inf
                 <X size={16} color="#374151" />
               </button>
 
+              {/* Image cliquable → ouvre la lightbox */}
               {selected.image && (
-                <div style={{ width: "100%", background: "#EBF4FF", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", flexShrink: 0 }}>
+                <div
+                  onClick={() => setLightbox(selected.image!)}
+                  style={{ width: "100%", background: "#EBF4FF", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", flexShrink: 0, cursor: "zoom-in", position: "relative" }}
+                >
                   <img
                     src={selected.image}
                     alt={selected.titre ?? ""}
                     style={{ maxWidth: "100%", maxHeight: "280px", objectFit: "contain", borderRadius: "0.5rem", display: "block" }}
                   />
+                  {/* Icône zoom */}
+                  <div style={{ position: "absolute", bottom: "1.25rem", right: "1.25rem", background: "rgba(21,101,192,0.85)", borderRadius: "9999px", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                    <ZoomIn size={15} color="white" />
+                  </div>
                 </div>
               )}
 
+              {/* Texte */}
               <div
                 style={{ flex: 1, overflowY: "auto", padding: "1.5rem 2rem 2rem", scrollbarWidth: "thin", scrollbarColor: "rgba(21,101,192,0.2) transparent" }}
                 onWheel={e => e.stopPropagation()}
@@ -192,6 +202,52 @@ export default function InformationsClient({ informations }: { informations: Inf
                 )}
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Lightbox ── */}
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLightbox(null)}
+            style={{
+              position: "fixed", inset: 0, zIndex: 2000,
+              background: "rgba(0,0,0,0.92)",
+              backdropFilter: "blur(12px)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: "1.5rem",
+              cursor: "zoom-out",
+            }}
+          >
+            {/* Bouton fermer */}
+            <button
+              onClick={() => setLightbox(null)}
+              style={{ position: "absolute", top: "1.25rem", right: "1.25rem", zIndex: 10, width: "40px", height: "40px", borderRadius: "9999px", background: "rgba(255,255,255,0.15)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <X size={18} color="white" />
+            </button>
+
+            <motion.img
+              src={lightbox}
+              alt=""
+              initial={{ opacity: 0, scale: 0.88 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.88 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              onClick={e => e.stopPropagation()}
+              style={{
+                maxWidth: "100%",
+                maxHeight: "90vh",
+                objectFit: "contain",
+                borderRadius: "0.75rem",
+                cursor: "default",
+                boxShadow: "0 32px 80px rgba(0,0,0,0.7)",
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>
