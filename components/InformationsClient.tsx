@@ -51,7 +51,6 @@ export default function InformationsClient({ informations }: { informations: Inf
                   onClick={() => showVoirPlus ? setSelected(info) : undefined}
                   whileHover={{ y: -6, rotate: 0, scale: 1.03 }}
                   style={{
-                    // Couche externe blanche
                     background: "white",
                     borderRadius: "1.25rem",
                     boxShadow: "0 10px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
@@ -80,7 +79,7 @@ export default function InformationsClient({ informations }: { informations: Inf
                     zIndex: 2,
                   }} />
 
-                  {/* Couche interne bleue/lavande — contient tout le texte */}
+                  {/* Couche interne bleue */}
                   <div style={{
                     background: "#dbeafe",
                     borderRadius: "0.85rem",
@@ -90,14 +89,12 @@ export default function InformationsClient({ informations }: { informations: Inf
                     flex: 1,
                     minHeight: "140px",
                   }}>
-                    {/* Titre */}
                     {info.titre && (
                       <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#1a2e4a", lineHeight: 1.3, marginBottom: "0.45rem" }}>
                         {info.titre}
                       </h3>
                     )}
 
-                    {/* Description */}
                     <div style={{ flex: 1 }}>
                       {info.contenu && (
                         <p style={{ fontSize: "0.82rem", color: "#374151", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>
@@ -106,7 +103,6 @@ export default function InformationsClient({ informations }: { informations: Inf
                       )}
                     </div>
 
-                    {/* Footer */}
                     <div style={{ marginTop: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <p style={{ fontSize: "0.68rem", color: "#6B89B4", fontWeight: 500 }}>
                         {new Date(info.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
@@ -151,12 +147,12 @@ export default function InformationsClient({ informations }: { informations: Inf
                 background: "white",
                 borderRadius: "1.5rem",
                 width: "100%",
-                maxWidth: selected.image ? "860px" : "560px",
-                maxHeight: "85vh",
+                maxWidth: "560px",
+                maxHeight: "90vh",
                 boxShadow: "0 24px 64px rgba(0,0,0,0.2)",
                 position: "relative",
                 display: "flex",
-                flexDirection: selected.image ? "row" : "column",
+                flexDirection: "column",
                 overflow: "hidden",
               }}
             >
@@ -168,29 +164,33 @@ export default function InformationsClient({ informations }: { informations: Inf
               </button>
 
               {selected.image && (
-                <>
-                  <div style={{ width: "380px", flexShrink: 0, background: "#EBF4FF", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
-                    <img src={selected.image} alt={selected.titre ?? ""} style={{ maxWidth: "100%", maxHeight: "calc(85vh - 3rem)", objectFit: "contain", borderRadius: "0.5rem", display: "block" }} />
-                  </div>
-                  <div style={{ flex: 1, overflowY: "auto", padding: "2rem", scrollbarWidth: "thin", scrollbarColor: "rgba(21,101,192,0.2) transparent" }} onWheel={e => e.stopPropagation()}>
-                    <p style={{ fontSize: "0.72rem", color: "#9CA3AF", fontWeight: 600, letterSpacing: "0.05em", marginBottom: "0.875rem" }}>
-                      Publié le {new Date(selected.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })} à {new Date(selected.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
-                    {selected.titre && <h2 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#1e3a5f", lineHeight: 1.3, marginBottom: "1rem" }}>{selected.titre}</h2>}
-                    {selected.contenu && <p style={{ fontSize: "0.95rem", color: "#374151", lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{selected.contenu}</p>}
-                  </div>
-                </>
-              )}
-
-              {!selected.image && (
-                <div style={{ overflowY: "auto", padding: "2rem 2.5rem", scrollbarWidth: "thin", scrollbarColor: "rgba(21,101,192,0.2) transparent" }} onWheel={e => e.stopPropagation()}>
-                  <p style={{ fontSize: "0.72rem", color: "#9CA3AF", fontWeight: 600, letterSpacing: "0.05em", marginBottom: "0.875rem" }}>
-                    Publié le {new Date(selected.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })} à {new Date(selected.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
-                  </p>
-                  {selected.titre && <h2 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#1e3a5f", lineHeight: 1.3, marginBottom: "1rem" }}>{selected.titre}</h2>}
-                  {selected.contenu && <p style={{ fontSize: "0.95rem", color: "#374151", lineHeight: 1.9, whiteSpace: "pre-wrap" }}>{selected.contenu}</p>}
+                <div style={{ width: "100%", background: "#EBF4FF", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", flexShrink: 0 }}>
+                  <img
+                    src={selected.image}
+                    alt={selected.titre ?? ""}
+                    style={{ maxWidth: "100%", maxHeight: "280px", objectFit: "contain", borderRadius: "0.5rem", display: "block" }}
+                  />
                 </div>
               )}
+
+              <div
+                style={{ flex: 1, overflowY: "auto", padding: "1.5rem 2rem 2rem", scrollbarWidth: "thin", scrollbarColor: "rgba(21,101,192,0.2) transparent" }}
+                onWheel={e => e.stopPropagation()}
+              >
+                <p style={{ fontSize: "0.72rem", color: "#9CA3AF", fontWeight: 600, letterSpacing: "0.05em", marginBottom: "0.875rem" }}>
+                  Publié le {new Date(selected.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })} à {new Date(selected.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                </p>
+                {selected.titre && (
+                  <h2 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#1e3a5f", lineHeight: 1.3, marginBottom: "1rem" }}>
+                    {selected.titre}
+                  </h2>
+                )}
+                {selected.contenu && (
+                  <p style={{ fontSize: "0.95rem", color: "#374151", lineHeight: 1.9, whiteSpace: "pre-wrap" }}>
+                    {selected.contenu}
+                  </p>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}
