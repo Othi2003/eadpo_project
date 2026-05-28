@@ -142,7 +142,7 @@ export default function StructuresPageClient({ structures }: { structures: Struc
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }}
             style={{ fontSize: "1.1rem", color: "rgba(255,255,255,0.75)", maxWidth: "560px", margin: "0 auto", lineHeight: 1.7 }}>
-            Cinq départements dynamiques qui forment le cœur vivant de notre église.
+            Quatre départements dynamiques qui forment le cœur vivant de notre église.
           </motion.p>
         </div>
         <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" style={{ position: "absolute", bottom: -1, left: 0, width: "100%", display: "block" }} preserveAspectRatio="none">
@@ -164,12 +164,6 @@ export default function StructuresPageClient({ structures }: { structures: Struc
 
         {/* max-w-6xl → cards plus larges qu'avec max-w-5xl */}
         <div className="max-w-6xl mx-auto" style={{ position: "relative", zIndex: 2 }}>
-          <motion.div className="text-center mb-16" initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
-            <span style={{ fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 800, letterSpacing: "-0.02em", background: "linear-gradient(135deg, #1565C0 0%, #42A5F5 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", display: "inline-block", paddingBottom: "0.1em" }}>
-              Découvrez chaque structure
-            </span>
-            <div style={{ marginTop: "6px", height: "3px", width: "80px", borderRadius: "9999px", background: "linear-gradient(to right, #1565C0, #42A5F5, transparent)", marginLeft: "auto", marginRight: "auto" }} />
-          </motion.div>
 
           <div className="flex flex-col gap-6 lg:hidden">
             {structures.map((s, i) => <StructureCard key={s.id} s={s} i={i} />)}

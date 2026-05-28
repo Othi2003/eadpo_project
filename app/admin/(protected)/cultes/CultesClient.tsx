@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Plus, Pencil, Trash2, X } from "lucide-react"
 import Modal from "@/components/admin/Modal"
-import ChampTexte from "@/components/admin/ChampTexte"
 import UploadButton from "@/components/admin/UploadButton"
 import UploadFichier from "@/components/admin/UploadFichier"
 import { creerCulte, modifierCulte, supprimerCulte } from "@/lib/actions/cultes"
@@ -22,7 +21,7 @@ function getDimancheRecent(): string {
 
 function formatDateFr(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("fr-FR", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric"
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
   })
 }
 
@@ -85,150 +84,355 @@ export default function CultesAdminClient({ cultes: initial }: { cultes: CulteCo
     setCultes(c => c.filter(x => x.id !== id))
   }
 
-  const ajouterEtape = () => setForm(f => ({ ...f, etapes: [...f.etapes, { titre: "", description: "" }] }))
+  const ajouterEtape = () =>
+    setForm(f => ({ ...f, etapes: [...f.etapes, { titre: "", description: "" }] }))
+
   const modifEtape = (i: number, key: "titre" | "description", val: string) =>
     setForm(f => ({ ...f, etapes: f.etapes.map((e, idx) => idx === i ? { ...e, [key]: val } : e) }))
-  const suppEtape = (i: number) => setForm(f => ({ ...f, etapes: f.etapes.filter((_, idx) => idx !== i) }))
-  const ajouterImages = (urls: string[]) => setForm(f => ({ ...f, images: [...f.images, ...urls] }))
-  const suppImage = (i: number) => setForm(f => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }))
+
+  const suppEtape = (i: number) =>
+    setForm(f => ({ ...f, etapes: f.etapes.filter((_, idx) => idx !== i) }))
+
+  const ajouterImages = (urls: string[]) =>
+    setForm(f => ({ ...f, images: [...f.images, ...urls] }))
+
+  const suppImage = (i: number) =>
+    setForm(f => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }))
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+
+      {/* ── En-tête fixe ── padding réduit */}
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexShrink: 0,
+        padding: "1rem 2rem 0.875rem",
+        borderBottom: "1px solid rgba(21,101,192,0.07)",
+      }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "#1e3a5f" }}>Cultes</h1>
-          <p style={{ color: "#9CA3AF", fontSize: "0.9rem" }}>{cultes.length} culte{cultes.length > 1 ? "s" : ""}</p>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#1e3a5f", margin: 0 }}>
+            Cultes
+          </h1>
+          <p style={{ color: "#9CA3AF", fontSize: "0.85rem", margin: "0.15rem 0 0" }}>
+            {cultes.length} culte{cultes.length > 1 ? "s" : ""}
+          </p>
         </div>
-        <button onClick={() => ouvrir("creer")} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 1.25rem", background: "linear-gradient(135deg, #1565C0, #1E88E5)", color: "white", border: "none", borderRadius: "0.875rem", fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", fontFamily: "'Inter', sans-serif" }}>
+        <button
+          onClick={() => ouvrir("creer")}
+          style={{
+            display: "flex", alignItems: "center", gap: "0.5rem",
+            padding: "0.75rem 1.25rem",
+            background: "linear-gradient(135deg, #1565C0, #1E88E5)",
+            color: "white", border: "none", borderRadius: "0.875rem",
+            fontSize: "0.88rem", fontWeight: 600, cursor: "pointer",
+            fontFamily: "'Inter', sans-serif",
+          }}
+        >
           <Plus size={16} /> Ajouter
         </button>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
-        {cultes.map(c => (
-          <div key={c.id} style={{ background: "white", borderRadius: "1.25rem", padding: "1.25rem 1.5rem", boxShadow: "0 2px 12px rgba(21,101,192,0.07)", border: "1px solid rgba(21,101,192,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
-              <div style={{ background: "linear-gradient(135deg, #1565C0, #1E88E5)", borderRadius: "0.875rem", padding: "0.75rem 1rem", textAlign: "center", minWidth: "56px" }}>
-                <p style={{ color: "white", fontWeight: 800, fontSize: "1.1rem", lineHeight: 1 }}>{new Date(c.date).getDate()}</p>
-                <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.65rem", fontWeight: 600, textTransform: "uppercase" as const }}>
-                  {new Date(c.date).toLocaleDateString("fr-FR", { month: "short" })}
-                </p>
+      {/* ── Corps scrollable ── */}
+      <div
+        className="adm-scroll"
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "1.25rem 2rem 2rem",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+          {cultes.map(c => (
+            <div
+              key={c.id}
+              style={{
+                background: "white", borderRadius: "1.25rem",
+                padding: "1.25rem 1.5rem",
+                boxShadow: "0 2px 12px rgba(21,101,192,0.07)",
+                border: "1px solid rgba(21,101,192,0.08)",
+                display: "flex", alignItems: "center",
+                justifyContent: "space-between", gap: "1rem",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+                <div style={{
+                  background: "linear-gradient(135deg, #1565C0, #1E88E5)",
+                  borderRadius: "0.875rem", padding: "0.75rem 1rem",
+                  textAlign: "center", minWidth: "56px",
+                }}>
+                  <p style={{ color: "white", fontWeight: 800, fontSize: "1.1rem", lineHeight: 1, margin: 0 }}>
+                    {new Date(c.date).getDate()}
+                  </p>
+                  <p style={{
+                    color: "rgba(255,255,255,0.75)", fontSize: "0.65rem",
+                    fontWeight: 600, textTransform: "uppercase" as const, margin: 0,
+                  }}>
+                    {new Date(c.date).toLocaleDateString("fr-FR", { month: "short" })}
+                  </p>
+                </div>
+                <div>
+                  <p style={{ fontWeight: 700, color: "#1e3a5f", fontSize: "0.95rem", margin: 0 }}>
+                    {c.titre}
+                  </p>
+                  <p style={{ fontSize: "0.78rem", color: "#9CA3AF", margin: "0.2rem 0 0" }}>
+                    {c.etapes.length} étape{c.etapes.length > 1 ? "s" : ""}
+                    {c.images.length > 0 && ` · ${c.images.length} photo${c.images.length > 1 ? "s" : ""}`}
+                    {c.audio && " · Audio"}
+                    {c.video && " · Vidéo"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p style={{ fontWeight: 700, color: "#1e3a5f", fontSize: "0.95rem" }}>{c.titre}</p>
-                <p style={{ fontSize: "0.78rem", color: "#9CA3AF", marginTop: "0.2rem" }}>
-                  {c.etapes.length} étape{c.etapes.length > 1 ? "s" : ""}
-                  {c.images.length > 0 && ` · ${c.images.length} photo${c.images.length > 1 ? "s" : ""}`}
-                  {c.audio && " · Audio"}
-                  {c.video && " · Vidéo"}
-                </p>
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <button
+                  onClick={() => ouvrir("modifier", c)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "0.4rem",
+                    padding: "0.6rem 1rem",
+                    background: "rgba(21,101,192,0.06)", color: "#1565C0",
+                    border: "none", borderRadius: "0.75rem",
+                    fontSize: "0.82rem", fontWeight: 600, cursor: "pointer",
+                  }}
+                >
+                  <Pencil size={14} /> Modifier
+                </button>
+                <button
+                  onClick={() => supprimer(c.id)}
+                  style={{
+                    padding: "0.6rem 0.875rem",
+                    background: "rgba(239,68,68,0.07)", color: "#DC2626",
+                    border: "none", borderRadius: "0.75rem", cursor: "pointer",
+                    display: "flex", alignItems: "center",
+                  }}
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             </div>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button onClick={() => ouvrir("modifier", c)} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.6rem 1rem", background: "rgba(21,101,192,0.06)", color: "#1565C0", border: "none", borderRadius: "0.75rem", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer" }}>
-                <Pencil size={14} /> Modifier
-              </button>
-              <button onClick={() => supprimer(c.id)} style={{ padding: "0.6rem 0.875rem", background: "rgba(239,68,68,0.07)", color: "#DC2626", border: "none", borderRadius: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center" }}>
-                <Trash2 size={14} />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      <Modal open={!!modal} onClose={fermer} title={modal === "creer" ? "Ajouter un culte" : "Modifier le culte"}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+      {/* ── Modal ── */}
+      <Modal
+        open={!!modal}
+        onClose={fermer}
+        title={modal === "creer" ? "Ajouter un culte" : "Modifier le culte"}
+      >
+        {/*
+          Wrapper flex column : le bouton "Enregistrer" reste en bas,
+          le corps du formulaire scroll indépendamment.
+        */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          maxHeight: "70vh",        // hauteur max du modal
+          overflow: "hidden",       // empêche le débordement global
+        }}>
 
-          {/* Date en lecture seule */}
-          <div style={{ padding: "0.875rem 1rem", background: "#f5f9ff", borderRadius: "0.875rem", border: "1px solid rgba(21,101,192,0.1)" }}>
-            <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#9CA3AF", letterSpacing: "0.05em", textTransform: "uppercase" as const, marginBottom: "0.25rem" }}>Culte du</p>
-            <p style={{ fontSize: "1rem", fontWeight: 700, color: "#1565C0" }}>{formatDateFr(dateSelectionnee)}</p>
-          </div>
-
-          {/* Étapes */}
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-              <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "#374151", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>
-                Étapes du résumé
-              </label>
-              <button type="button" onClick={ajouterEtape} style={{ fontSize: "0.78rem", color: "#1565C0", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>+ Ajouter</button>
+          {/* Zone scrollable du formulaire */}
+          <div
+            className="adm-scroll"
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              paddingRight: "4px",  // espace pour la scrollbar sans décaler le contenu
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.25rem",
+            }}
+          >
+            {/* Date */}
+            <div style={{
+              padding: "0.875rem 1rem", background: "#f5f9ff",
+              borderRadius: "0.875rem", border: "1px solid rgba(21,101,192,0.1)",
+            }}>
+              <p style={{
+                fontSize: "0.72rem", fontWeight: 700, color: "#9CA3AF",
+                letterSpacing: "0.05em", textTransform: "uppercase" as const,
+                margin: "0 0 0.25rem",
+              }}>
+                Culte du
+              </p>
+              <p style={{ fontSize: "1rem", fontWeight: 700, color: "#1565C0", margin: 0 }}>
+                {formatDateFr(dateSelectionnee)}
+              </p>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
-              {form.etapes.map((e, i) => (
-                <div key={i} style={{ background: "#f5f9ff", borderRadius: "1rem", padding: "1rem", border: "1px solid rgba(21,101,192,0.1)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                    <span style={{ width: "24px", height: "24px", borderRadius: "9999px", background: "#1565C0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.72rem", fontWeight: 800, color: "white", flexShrink: 0 }}>{i + 1}</span>
-                    <input
-                      value={e.titre}
-                      onChange={(ev: React.ChangeEvent<HTMLInputElement>) => modifEtape(i, "titre", ev.target.value)}
-                      placeholder="Titre de l'étape"
-                      style={{ flex: 1, padding: "0.6rem 0.875rem", border: "1.5px solid #E5E7EB", borderRadius: "0.625rem", fontSize: "0.88rem", outline: "none", fontFamily: "'Inter', sans-serif", background: "white" }}
-                      onFocus={ev => ev.target.style.borderColor = "#1565C0"}
-                      onBlur={ev => ev.target.style.borderColor = "#E5E7EB"}
+
+            {/* Étapes */}
+            <div>
+              <div style={{
+                display: "flex", justifyContent: "space-between",
+                alignItems: "center", marginBottom: "0.75rem",
+              }}>
+                <label style={{
+                  fontSize: "0.75rem", fontWeight: 700, color: "#374151",
+                  letterSpacing: "0.05em", textTransform: "uppercase" as const,
+                }}>
+                  Étapes du résumé
+                </label>
+                <button
+                  type="button"
+                  onClick={ajouterEtape}
+                  style={{
+                    fontSize: "0.78rem", color: "#1565C0", fontWeight: 600,
+                    background: "none", border: "none", cursor: "pointer",
+                  }}
+                >
+                  + Ajouter
+                </button>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+                {form.etapes.map((e, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      background: "#f5f9ff", borderRadius: "1rem",
+                      padding: "1rem", border: "1px solid rgba(21,101,192,0.1)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                      <span style={{
+                        width: "24px", height: "24px", borderRadius: "9999px",
+                        background: "#1565C0", display: "flex", alignItems: "center",
+                        justifyContent: "center", fontSize: "0.72rem", fontWeight: 800,
+                        color: "white", flexShrink: 0,
+                      }}>
+                        {i + 1}
+                      </span>
+                      <input
+                        value={e.titre}
+                        onChange={(ev: React.ChangeEvent<HTMLInputElement>) => modifEtape(i, "titre", ev.target.value)}
+                        placeholder="Titre de l'étape"
+                        style={{
+                          flex: 1, padding: "0.6rem 0.875rem",
+                          border: "1.5px solid #E5E7EB", borderRadius: "0.625rem",
+                          fontSize: "0.88rem", outline: "none",
+                          fontFamily: "'Inter', sans-serif", background: "white",
+                        }}
+                        onFocus={ev => (ev.target.style.borderColor = "#1565C0")}
+                        onBlur={ev => (ev.target.style.borderColor = "#E5E7EB")}
+                      />
+                      {form.etapes.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => suppEtape(i)}
+                          style={{
+                            padding: "0.6rem", background: "rgba(239,68,68,0.08)",
+                            color: "#DC2626", border: "none", borderRadius: "0.625rem",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <X size={13} />
+                        </button>
+                      )}
+                    </div>
+                    <textarea
+                      value={e.description}
+                      onChange={(ev: React.ChangeEvent<HTMLTextAreaElement>) => modifEtape(i, "description", ev.target.value)}
+                      placeholder="Description..."
+                      rows={3}
+                      style={{
+                        width: "100%", padding: "0.75rem",
+                        border: "1.5px solid #E5E7EB", borderRadius: "0.625rem",
+                        fontSize: "0.85rem", outline: "none",
+                        fontFamily: "'Inter', sans-serif", resize: "vertical",
+                        boxSizing: "border-box" as const, background: "white",
+                      }}
+                      onFocus={ev => (ev.target.style.borderColor = "#1565C0")}
+                      onBlur={ev => (ev.target.style.borderColor = "#E5E7EB")}
                     />
-                    {form.etapes.length > 1 && (
-                      <button type="button" onClick={() => suppEtape(i)} style={{ padding: "0.6rem", background: "rgba(239,68,68,0.08)", color: "#DC2626", border: "none", borderRadius: "0.625rem", cursor: "pointer" }}>
-                        <X size={13} />
-                      </button>
-                    )}
                   </div>
-                  <textarea
-                    value={e.description}
-                    onChange={(ev: React.ChangeEvent<HTMLTextAreaElement>) => modifEtape(i, "description", ev.target.value)}
-                    placeholder="Description..."
-                    rows={3}
-                    style={{ width: "100%", padding: "0.75rem", border: "1.5px solid #E5E7EB", borderRadius: "0.625rem", fontSize: "0.85rem", outline: "none", fontFamily: "'Inter', sans-serif", resize: "vertical", boxSizing: "border-box" as const, background: "white" }}
-                    onFocus={ev => ev.target.style.borderColor = "#1565C0"}
-                    onBlur={ev => ev.target.style.borderColor = "#E5E7EB"}
-                  />
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+
+            {/* Galerie images */}
+            <div>
+              <label style={{
+                display: "block", fontSize: "0.75rem", fontWeight: 700,
+                color: "#374151", marginBottom: "0.75rem",
+                letterSpacing: "0.05em", textTransform: "uppercase" as const,
+              }}>
+                Galerie photos ({form.images.length})
+              </label>
+              <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "flex-end" }}>
+                {form.images.map((url, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      position: "relative", width: "80px", height: "60px",
+                      borderRadius: "0.75rem", overflow: "hidden",
+                      border: "2px solid rgba(21,101,192,0.15)",
+                    }}
+                  >
+                    <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <button
+                      type="button"
+                      onClick={() => suppImage(i)}
+                      style={{
+                        position: "absolute", top: "2px", right: "2px",
+                        background: "rgba(0,0,0,0.5)", border: "none",
+                        borderRadius: "9999px", width: "18px", height: "18px",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <X size={10} color="white" />
+                    </button>
+                  </div>
+                ))}
+                <UploadButton
+                  value=""
+                  onChange={() => {}}
+                  onChangeMultiple={ajouterImages}
+                  label=""
+                  multiple
+                />
+              </div>
+            </div>
+
+            {/* Audio */}
+            <UploadFichier
+              value={form.audio}
+              onChange={(v: string) => setForm(f => ({ ...f, audio: v }))}
+              label="Enregistrement audio (optionnel)"
+              type="audio"
+            />
+
+            {/* Vidéo */}
+            <UploadFichier
+              value={form.video}
+              onChange={(v: string) => setForm(f => ({ ...f, video: v }))}
+              label="Vidéo du résumé (optionnel)"
+              type="video"
+            />
           </div>
 
-          {/* Galerie images */}
-          <div>
-            <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#374151", marginBottom: "0.75rem", letterSpacing: "0.05em", textTransform: "uppercase" as const }}>
-              Galerie photos ({form.images.length})
-            </label>
-            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "flex-end" }}>
-              {form.images.map((url, i) => (
-                <div key={i} style={{ position: "relative", width: "80px", height: "60px", borderRadius: "0.75rem", overflow: "hidden", border: "2px solid rgba(21,101,192,0.15)" }}>
-                  <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  <button type="button" onClick={() => suppImage(i)} style={{ position: "absolute", top: "2px", right: "2px", background: "rgba(0,0,0,0.5)", border: "none", borderRadius: "9999px", width: "18px", height: "18px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-                    <X size={10} color="white" />
-                  </button>
-                </div>
-              ))}
-              <UploadButton
-                value=""
-                onChange={() => {}}
-                onChangeMultiple={ajouterImages}
-                label=""
-                multiple
-              />
-            </div>
+          {/* Bouton Enregistrer — fixe en bas, hors de la zone scroll */}
+          <div style={{
+            flexShrink: 0,
+            paddingTop: "1.25rem",
+            borderTop: "1px solid rgba(21,101,192,0.07)",
+            marginTop: "0.5rem",
+          }}>
+            <button
+              onClick={soumettre}
+              disabled={loading}
+              style={{
+                width: "100%",
+                padding: "0.875rem",
+                background: "linear-gradient(135deg, #1565C0, #1E88E5)",
+                color: "white", border: "none", borderRadius: "0.875rem",
+                fontWeight: 700, fontSize: "0.95rem", cursor: "pointer",
+                fontFamily: "'Inter', sans-serif",
+                opacity: loading ? 0.7 : 1,
+              }}
+            >
+              {loading ? "Enregistrement..." : "Enregistrer"}
+            </button>
           </div>
-
-          {/* Audio */}
-          <UploadFichier
-            value={form.audio}
-            onChange={(v: string) => setForm(f => ({ ...f, audio: v }))}
-            label="Enregistrement audio (optionnel)"
-            type="audio"
-          />
-
-          {/* Vidéo */}
-          <UploadFichier
-            value={form.video}
-            onChange={(v: string) => setForm(f => ({ ...f, video: v }))}
-            label="Vidéo du résumé (optionnel)"
-            type="video"
-          />
-
-          <button onClick={soumettre} disabled={loading} style={{ marginTop: "0.5rem", padding: "0.875rem", background: "linear-gradient(135deg, #1565C0, #1E88E5)", color: "white", border: "none", borderRadius: "0.875rem", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer", fontFamily: "'Inter', sans-serif" }}>
-            {loading ? "Enregistrement..." : "Enregistrer"}
-          </button>
         </div>
       </Modal>
     </div>

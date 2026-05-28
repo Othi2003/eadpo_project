@@ -24,7 +24,6 @@ const SectionTitle = ({ label, title }: { label: string; title: string }) => (
     }}>
       {title}
     </span>
-    <div style={{ marginTop: "8px", height: "3px", width: "60px", borderRadius: "9999px", background: "linear-gradient(to right, #1565C0, #42A5F5, transparent)", marginLeft: "auto", marginRight: "auto" }} />
   </motion.div>
 )
 

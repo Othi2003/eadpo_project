@@ -87,11 +87,6 @@ export default function PasteursClient({ pasteurs }: { pasteurs: Pasteur[] }) {
           }}>
             Nos Pasteurs
           </span>
-          <motion.div
-            initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            style={{ marginTop: "6px", height: "3px", width: "80px", borderRadius: "9999px", background: "linear-gradient(to right, #1565C0, #42A5F5, transparent)", marginLeft: "auto", marginRight: "auto", transformOrigin: "left" }}
-          />
           <motion.p
             initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}

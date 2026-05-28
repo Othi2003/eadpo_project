@@ -30,8 +30,6 @@ export default function InformationsClient({ informations }: { informations: Inf
             <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(2.2rem, 5vw, 3.5rem)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.2, background: "linear-gradient(135deg, #1565C0 0%, #1E88E5 50%, #42A5F5 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text", display: "inline-block" }}>
               Informations
             </span>
-            <motion.div initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.3 }}
-              style={{ marginTop: "6px", height: "3px", width: "80px", borderRadius: "9999px", background: "linear-gradient(to right, #1565C0, #42A5F5, transparent)", marginLeft: "auto", marginRight: "auto", transformOrigin: "left" }} />
             <p className="mt-4 text-gray-500 text-center" style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.1rem" }}>
               Annonces et actualités de l&apos;église
             </p>

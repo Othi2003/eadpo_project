@@ -6,7 +6,7 @@ import Image from "next/image"
 import Modal from "@/components/admin/Modal"
 import ChampTexte from "@/components/admin/ChampTexte"
 import UploadButton from "@/components/admin/UploadButton"
-import { creerSlide, modifierSlide, supprimerSlide } from "@/lib/actions/hero"
+import { creerSlide, modifierImageSlide1, modifierSlide, supprimerSlide } from "@/lib/actions/hero"
 import { creerProgramme, modifierProgramme, supprimerProgramme } from "@/lib/actions/programme"
 import type { SlideHero, Programme } from "@prisma/client"
 
@@ -105,23 +105,48 @@ export default function AccueilAdminClient({
             <div key={s.id} style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "0.875rem 1rem", background: "#f5f9ff", borderRadius: "1rem", border: "1px solid rgba(21,101,192,0.07)" }}>
               <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#9CA3AF", width: "20px", flexShrink: 0 }}>{i + 1}</span>
               <div style={{ position: "relative", width: "72px", height: "48px", borderRadius: "0.5rem", overflow: "hidden", flexShrink: 0 }}>
-                <Image src={s.image} alt={`Slide ${i + 1}`} fill className="object-cover" />
+                <img src={s.image} alt={`Slide ${i + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
               <div style={{ flex: 1 }}>
-                {s.label ? (
-                  <p style={{ fontWeight: 700, color: "#1e3a5f", fontSize: "0.88rem" }}>{s.label}</p>
+                {i === 0 ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <p style={{ fontWeight: 700, color: "#1e3a5f", fontSize: "0.88rem" }}>Bienvenue !</p>
+                    <span style={{ fontSize: "0.65rem", background: "rgba(21,101,192,0.1)", color: "#1565C0", fontWeight: 700, padding: "0.15rem 0.5rem", borderRadius: "9999px" }}>Fixe — image uniquement</span>
+                  </div>
                 ) : (
-                  <p style={{ color: "#9CA3AF", fontSize: "0.88rem", fontStyle: "italic" }}>Image seule (pas de texte)</p>
+                  <>
+                    {s.label ? (
+                      <p style={{ fontWeight: 700, color: "#1e3a5f", fontSize: "0.88rem" }}>{s.label}</p>
+                    ) : (
+                      <p style={{ color: "#9CA3AF", fontSize: "0.88rem", fontStyle: "italic" }}>Pas de texte</p>
+                    )}
+                    {s.texte && <p style={{ fontSize: "0.75rem", color: "#6B7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "400px" }}>{s.texte}</p>}
+                  </>
                 )}
-                {s.texte && <p style={{ fontSize: "0.75rem", color: "#6B7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "400px" }}>{s.texte}</p>}
               </div>
               <div style={{ display: "flex", gap: "0.4rem" }}>
-                <button onClick={() => ouvrirModifierSlide(s)} style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.5rem 0.875rem", background: "rgba(21,101,192,0.06)", color: "#1565C0", border: "none", borderRadius: "0.625rem", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer" }}>
-                  <Pencil size={13} /> Modifier
-                </button>
-                <button onClick={() => suppSlide(s.id)} style={{ padding: "0.5rem 0.75rem", background: "rgba(239,68,68,0.07)", color: "#DC2626", border: "none", borderRadius: "0.625rem", cursor: "pointer", display: "flex", alignItems: "center" }}>
-                  <Trash2 size={13} />
-                </button>
+                {/* Slide 1 : modifier image seulement */}
+                {i === 0 ? (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <UploadButton
+                      value=""
+                      onChange={async (url) => {
+                        await modifierImageSlide1(url)
+                        window.location.reload()
+                      }}
+                      label=""
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <button onClick={() => ouvrirModifierSlide(s)} style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.5rem 0.875rem", background: "rgba(21,101,192,0.06)", color: "#1565C0", border: "none", borderRadius: "0.625rem", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer" }}>
+                      <Pencil size={13} /> Modifier
+                    </button>
+                    <button onClick={() => suppSlide(s.id)} style={{ padding: "0.5rem 0.75rem", background: "rgba(239,68,68,0.07)", color: "#DC2626", border: "none", borderRadius: "0.625rem", cursor: "pointer", display: "flex", alignItems: "center" }}>
+                      <Trash2 size={13} />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           ))}
